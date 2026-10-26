@@ -34,7 +34,7 @@ def angle_dms(value):
 
 
 class NorthIllustration(QWidget):
-    """Combined schematic of true north (US), magnetic north (UM), and grid north (UG)."""
+    """Combined schematic of true north (TN), magnetic north (MN), and grid north (GN)."""
     def __init__(self, parent=None):
         super().__init__(parent)
         self.declination = None
@@ -98,7 +98,7 @@ class NorthIllustration(QWidget):
         us = (cx, cy-length)
         arrow(us, QColor('#17324d'), 3)
         p.setFont(QFont('Sans Serif', 11, QFont.Bold)); p.setPen(QColor('#17324d'))
-        p.drawText(int(cx+8), int(us[1]-14), 'US')
+        p.drawText(int(cx+8), int(us[1]-14), 'TN')
 
         um = endpoint(dvis) if dvis is not None else None
         ug = endpoint(gvis) if gvis is not None else None
@@ -112,11 +112,11 @@ class NorthIllustration(QWidget):
         if um is not None:
             p.setPen(QColor('#e53935'))
             ux = um[0] + (8 if dvis >= 0 else -30)
-            p.drawText(int(max(rect.left(), min(rect.right()-34, ux))), int(um[1]+15), 'UM')
+            p.drawText(int(max(rect.left(), min(rect.right()-34, ux))), int(um[1]+15), 'MN')
         if ug is not None:
             p.setPen(QColor('#1570ef'))
             gx = ug[0] + (8 if gvis >= 0 else -30)
-            p.drawText(int(max(rect.left(), min(rect.right()-34, gx))), int(ug[1]-4), 'UG')
+            p.drawText(int(max(rect.left(), min(rect.right()-34, gx))), int(ug[1]-4), 'GN')
 
         # D is the angle US–UM; gamma is the angle US–UG.
         arc_radius = radius * 0.38
@@ -136,7 +136,7 @@ class NorthIllustration(QWidget):
             p.drawText(int(cx + math.sin(ga)*(gr+7)), int(cy - math.cos(ga)*(gr+7)), u'γ')
 
         p.setPen(self.palette().text().color()); p.setFont(QFont('Sans Serif', 8))
-        note = 'Sudut ilustrasi diskematisasi; nilai numerik tetap hasil hitung.'
+        note = 'Illustration angles are schematic; numerical values are the calculated results.'
         p.drawText(QRectF(8, self.height()-24, self.width()-16, 18), Qt.AlignCenter, note)
         p.end()
 
@@ -144,7 +144,7 @@ class NorthIllustration(QWidget):
 class IGRFDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle('Deklinasi Magnetik & Konvergensi Grid')
+        self.setWindowTitle('Magnetic Declination & Grid Convergence')
         self.resize(1120, 740)
         self.setMinimumSize(960, 640)
         self.cof_path = os.path.join(os.path.dirname(__file__), 'IGRF14.COF')
@@ -160,22 +160,22 @@ class IGRFDialog(QDialog):
 
         # Date label requested by user
         date_row = QHBoxLayout()
-        date_row.addWidget(QLabel('Tanggal cetak peta'))
+        date_row.addWidget(QLabel('Map publication date'))
         self.date = QDateEdit(QDate.currentDate())
         self.date.setCalendarPopup(True)
         self.date.setDisplayFormat('yyyy-MM-dd')
         date_row.addWidget(self.date, 1)
-        self.help_button = QPushButton('Panduan')
-        self.help_button.setToolTip('Panduan pengisian, data yang diperlukan, metode, dan arti hasil')
+        self.help_button = QPushButton('Guide')
+        self.help_button.setToolTip('Input instructions, required data, calculation methods, and result interpretation')
         self.help_button.clicked.connect(self.show_help)
         date_row.addWidget(self.help_button)
         left.addLayout(date_row)
 
-        coord_box = QGroupBox('Koordinat (Geodetik, WGS84)')
+        coord_box = QGroupBox('Coordinates (Geodetic, WGS84)')
         cg = QGridLayout(coord_box)
         cg.setHorizontalSpacing(6)
         cg.setVerticalSpacing(8)
-        cg.addWidget(QLabel('Lintang'), 0, 0)
+        cg.addWidget(QLabel('Latitude'), 0, 0)
         self.lat_deg = self._int_combo(0, 90, 4)
         self.lat_min = self._int_combo(0, 59, 18)
         self.lat_sec = self._sec_spin(17.40)
@@ -184,7 +184,7 @@ class IGRFDialog(QDialog):
         cg.addWidget(self.lat_min, 0, 3); cg.addWidget(QLabel('′'), 0, 4)
         cg.addWidget(self.lat_sec, 0, 5); cg.addWidget(QLabel('″'), 0, 6)
         cg.addWidget(self.lat_hemi, 0, 7)
-        cg.addWidget(QLabel('Bujur'), 1, 0)
+        cg.addWidget(QLabel('Longitude'), 1, 0)
         self.lon_deg = self._int_combo(0, 180, 115)
         self.lon_min = self._int_combo(0, 59, 57)
         self.lon_sec = self._sec_spin(4.80)
@@ -196,16 +196,16 @@ class IGRFDialog(QDialog):
         cg.setColumnStretch(5, 1)
         self.alt = QDoubleSpinBox(); self.alt.setRange(-12000, 100000); self.alt.setDecimals(3); self.alt.setValue(1080.0)
         self.alt.setSingleStep(1.0)
-        cg.addWidget(QLabel('Elevasi di atas ellipsoid (m)'), 2, 0, 1, 3)
+        cg.addWidget(QLabel('Ellipsoidal height (m)'), 2, 0, 1, 3)
         cg.addWidget(self.alt, 2, 3, 1, 5)
         left.addWidget(coord_box)
 
-        crs_box = QGroupBox('CRS untuk konvergensi grid')
+        crs_box = QGroupBox('CRS for grid convergence')
         crs_layout = QHBoxLayout(crs_box)
         self.crs_label = QLabel()
         self.crs_label.setWordWrap(True)
         self.crs_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
-        self.choose_crs_button = QPushButton('Pilih CRS lain…')
+        self.choose_crs_button = QPushButton('Choose another CRS…')
         self.choose_crs_button.setMaximumWidth(150)
         self.choose_crs_button.clicked.connect(self.choose_crs)
         crs_layout.addWidget(self.crs_label, 1)
@@ -219,36 +219,36 @@ class IGRFDialog(QDialog):
                 w.valueChanged.connect(self._update_crs_label)
         self._update_crs_label()
 
-        model_heading = QLabel('Model Geomagnetic')
+        model_heading = QLabel('Geomagnetic Model')
         model_heading.setStyleSheet('font-weight: bold;')
         left.addWidget(model_heading)
         file_box = QHBoxLayout()
-        file_box.addWidget(QLabel('File model (.COF)'))
+        file_box.addWidget(QLabel('Model file (.COF)'))
         self.file_label = QLabel(os.path.basename(self.cof_path))
         self.file_label.setMinimumWidth(80)
         self.file_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
         self.file_label.setToolTip(self.cof_path)
         file_box.addWidget(self.file_label, 1)
-        self.browse_button = QPushButton('Ganti file…')
+        self.browse_button = QPushButton('Change file…')
         self.browse_button.clicked.connect(self.choose_model)
         file_box.addWidget(self.browse_button)
-        self.update_button = QPushButton('Cek update')
+        self.update_button = QPushButton('Check for updates')
         self.update_button.clicked.connect(self.open_igrf_updates)
-        self.update_button.setToolTip('Buka situs resmi NOAA/NCEI untuk mengunduh file IGRF')
+        self.update_button.setToolTip('Open the official NOAA/NCEI website to obtain IGRF files')
         file_box.addWidget(self.update_button)
         left.addLayout(file_box)
-        self.model_label = QLabel('Model: membaca…')
+        self.model_label = QLabel('Model: loading…')
         self.model_label.setStyleSheet('font-weight: bold;')
-        self.range_label = QLabel('Rentang tanggal perhitungan: membaca…')
+        self.range_label = QLabel('Calculation date range: loading…')
         self.range_label.setWordWrap(True)
         left.addWidget(self.model_label)
         left.addWidget(self.range_label)
 
-        self.run_button = QPushButton('Hitung medan magnet dan konvergensi grid')
+        self.run_button = QPushButton('Calculate Magnetic Field and Grid Convergence')
         self.run_button.setMinimumHeight(38)
         self.run_button.clicked.connect(self.run_calculation)
         left.addWidget(self.run_button)
-        results_box = QGroupBox('Hasil perhitungan')
+        results_box = QGroupBox('Calculation Results')
         rb = QVBoxLayout(results_box)
         self.output = QTextEdit()
         self.output.setReadOnly(True)
@@ -257,21 +257,21 @@ class IGRFDialog(QDialog):
         rb.addWidget(self.output)
         left.addWidget(results_box, 1)
 
-        illustration_box = QGroupBox('Ilustrasi arah utara terpadu')
+        illustration_box = QGroupBox('North Direction Illustration')
         il = QVBoxLayout(illustration_box)
         self.compass = NorthIllustration()
         il.addWidget(self.compass, 1)
         note = QLabel(
-            '<b>Keterangan ilustrasi</b><br>'
+            '<b>Illustration legend</b><br>'
             '<table cellspacing="4" cellpadding="1" width="100%">'
-            '<tr><td width="28"><b>US</b></td><td>Utara sebenarnya (True North)</td></tr>'
-            '<tr><td><b>UM</b></td><td>Utara magnetik (Magnetic North)</td></tr>'
-            '<tr><td><b>UG</b></td><td>Utara grid (Grid North)</td></tr>'
+            '<tr><td width="28"><b>US</b></td><td>True North</td></tr>'
+            '<tr><td><b>UM</b></td><td>Magnetic North</td></tr>'
+            '<tr><td><b>UG</b></td><td>Grid North</td></tr>'
             '</table><hr>'
-            '<span style="color:#e53935"><b>D = Deklinasi magnetik</b></span><br>'
-            'Sudut yang terbentuk dari US ke UM.<br>'
-            '<span style="color:#1570ef"><b>γ = Konvergensi grid</b></span><br>'
-            'Sudut yang terbentuk dari US ke UG.'
+            '<span style="color:#e53935"><b>D = Magnetic declination</b></span><br>'
+            'Angle from TN to MN.<br>'
+            '<span style="color:#1570ef"><b>γ = Grid convergence</b></span><br>'
+            'Angle from TN to GN.'
         )
         note.setWordWrap(True)
         note.setTextFormat(Qt.RichText)
@@ -280,11 +280,11 @@ class IGRFDialog(QDialog):
         il.addWidget(note)
         right.addWidget(illustration_box, 1)
 
-        foot = QLabel('Elevasi dimasukkan sebagai tinggi di atas ellipsoid WGS84 (meter).')
+        foot = QLabel('Enter elevation as height above the WGS84 ellipsoid (metres).')
         foot.setWordWrap(True)
         foot.setStyleSheet('color:#6b5b2a; font-size:9pt;')
         left.addWidget(foot)
-        close = QPushButton('Tutup')
+        close = QPushButton('Close')
         close.clicked.connect(self.close)
         outer.addWidget(close)
         self.update_model_info()
@@ -309,7 +309,7 @@ class IGRFDialog(QDialog):
         # coordinates can be rejected by QDoubleSpinBox locale/input handling.
         s = QLineEdit(str(value))
         s.setMinimumWidth(85)
-        s.setPlaceholderText('detik')
+        s.setPlaceholderText('seconds')
         # Deliberately avoid a spin-box/strict validator here: some Qt locales
         # reject pasted decimal strings. Validate and normalize on edit finish
         # and again before calculation instead.
@@ -320,13 +320,13 @@ class IGRFDialog(QDialog):
     def _seconds_value(widget):
         text = widget.text().strip().replace(',', '.')
         if not text:
-            raise ValueError('Field detik tidak boleh kosong.')
+            raise ValueError('The seconds field cannot be empty.')
         try:
             value = float(text)
         except ValueError:
-            raise ValueError('Nilai detik harus berupa angka, misalnya 17.40.')
+            raise ValueError('Seconds must be numeric, for example 17.40.')
         if value < 0 or value >= 60:
-            raise ValueError('Nilai detik harus minimal 0 dan kurang dari 60.')
+            raise ValueError('Seconds must be at least 0 and less than 60.')
         return value
 
     @staticmethod
@@ -349,51 +349,51 @@ class IGRFDialog(QDialog):
         lat = dms_to_decimal(self.lat_deg.currentData(), self.lat_min.currentData(), self._seconds_value(self.lat_sec), self.lat_hemi.currentText())
         lon = dms_to_decimal(self.lon_deg.currentData(), self.lon_min.currentData(), self._seconds_value(self.lon_sec), self.lon_hemi.currentText())
         if self.lat_deg.currentData() == 90 and (self.lat_min.currentData() != 0 or self._seconds_value(self.lat_sec) != 0):
-            raise ValueError('Jika lintang 90°, menit dan detik harus nol.')
+            raise ValueError('At latitude 90°, minutes and seconds must be zero.')
         if self.lon_deg.currentData() == 180 and (self.lon_min.currentData() != 0 or self._seconds_value(self.lon_sec) != 0):
-            raise ValueError('Jika bujur 180°, menit dan detik harus nol.')
+            raise ValueError('At longitude 180°, minutes and seconds must be zero.')
         return lat, lon
 
     def show_help(self):
         help_html = '''
-        <h2>Panduan penggunaan</h2>
+        <h2>User Guide</h2>
         <h3>1. Cara mengisi setiap field</h3>
         <ul>
-          <li><b>Tanggal cetak peta</b> — pilih tanggal peta akan diterbitkan/dicetak. Tanggal ini dipakai untuk menghitung medan geomagnetik pada epoch yang sesuai; tanggal harus berada dalam rentang file model.</li>
-          <li><b>Lintang</b> — masukkan derajat, menit, dan detik, lalu pilih <b>N</b> untuk lintang utara atau <b>S</b> untuk lintang selatan.</li>
-          <li><b>Bujur</b> — masukkan derajat, menit, dan detik, lalu pilih <b>E</b> untuk bujur timur atau <b>W</b> untuk bujur barat.</li>
-          <li><b>Elevasi di atas ellipsoid (m)</b> — tinggi dalam meter terhadap ellipsoid WGS84, bukan tinggi orthometrik/tinggi terhadap muka laut. Jika data yang tersedia adalah elevasi orthometrik, konversikan terlebih dahulu menggunakan undulasi geoid (h = H + N) dari sumber geoid yang sesuai.</li>
-          <li><b>CRS untuk konvergensi grid</b> — secara default zona UTM dan belahan bumi ditentukan dari koordinat. Klik <b>Pilih CRS lain…</b> jika konvergensi perlu dihitung untuk CRS proyeksi lain. Klik tombol yang berubah menjadi <b>UTM otomatis</b> untuk kembali ke pilihan otomatis.</li>
-          <li><b>File model (.COF)</b> — gunakan file koefisien IGRF atau WMM yang sesuai. Tombol <b>Ganti file…</b> memilih file lokal. <b>Cek update</b> membuka laman resmi NOAA/NCEI; file tidak diunduh atau diganti secara otomatis.</li>
+          <li><b>Map publication date</b> — select the date for which the map will be published or printed. This date is used to calculate the geomagnetic field for the corresponding epoch and must fall within the model file's supported date range.</li>
+          <li><b>Latitude</b> — enter degrees, minutes, and seconds, then select <b>N</b> for north or <b>S</b> for south.</li>
+          <li><b>Longitude</b> — enter degrees, minutes, and seconds, then select <b>E</b> for east or <b>W</b> for west.</li>
+          <li><b>Ellipsoidal height (m)</b> — height in metres above the WGS84 ellipsoid, not orthometric height or height above mean sea level. If only orthometric height is available, convert it using geoid undulation (h = H + N) from an appropriate geoid source.</li>
+          <li><b>CRS for grid convergence</b> — by default, the UTM zone and hemisphere are determined from the coordinates. Click <b>Choose another CRS…</b> to calculate convergence for a different projected CRS. Click the button, which changes to <b>Automatic UTM</b>, to return to automatic selection.</li>
+          <li><b>Model file (.COF)</b> — use a suitable IGRF or WMM coefficient file. <b>Change file…</b> lets you select a local file. <b>Check for updates</b> opens the official NOAA/NCEI website; the file is not downloaded or replaced automatically.</li>
         </ul>
         <h3>2. Data yang diperlukan</h3>
         <ul>
-          <li>Tanggal perhitungan, lintang, bujur, dan tinggi ellipsoidal.</li>
-          <li>File koefisien geomagnetik <code>.COF</code> yang valid dan mencakup tanggal yang dipilih.</li>
-          <li>CRS target untuk konvergensi grid; bila tidak dipilih, plugin menggunakan UTM otomatis.</li>
+          <li>Calculation date, latitude, longitude, and ellipsoidal height.</li>
+          <li>A valid geomagnetic coefficient <code>.COF</code> file that covers the selected date.</li>
+          <li>A target CRS for grid convergence; if none is selected, the plugin uses automatic UTM.</li>
         </ul>
-        <h3>3. Metode perhitungan</h3>
+        <h3>3. Calculation methods</h3>
         <ul>
-          <li><b>Medan geomagnetik</b> dihitung dari koefisien harmonik sferis dalam file IGRF/WMM, dengan tanggal, koordinat geodetik, dan tinggi ellipsoidal sebagai masukan. Deklinasi dihitung dari komponen horizontal medan; inklinasi dan intensitas dihitung dari komponen medan lainnya.</li>
-          <li><b>Konvergensi grid (γ)</b> dihitung oleh pustaka proyeksi QGIS untuk CRS target pada lokasi yang dimasukkan. Nilainya adalah sudut antara utara sebenarnya dan utara grid menurut konvensi tanda QGIS/CRS tersebut.</li>
-          <li><b>Ilustrasi US/UM/UG</b> bersifat skematis untuk memperlihatkan hubungan arah: US = utara sebenarnya, UM = utara magnetik, UG = utara grid. Sudut D adalah US–UM; γ adalah US–UG. Ilustrasi dapat memperbesar sudut kecil agar terlihat, sehingga nilai numerik pada hasil adalah acuan.</li>
+          <li><b>Geomagnetic field</b> is calculated from the spherical harmonic coefficients in the IGRF/WMM file using the date, geodetic coordinates, and ellipsoidal height. Declination is calculated from the horizontal field components; inclination and intensity are derived from the other field components.</li>
+          <li><b>Grid convergence (γ)</b> is calculated by the QGIS projection library for the target CRS at the input location. It is the angle between true north and grid north according to the sign convention used by QGIS and the CRS.</li>
+          <li><b>The TN/MN/GN illustration</b> is schematic and shows the directional relationships: TN = true north, MN = magnetic north, and GN = grid north. Angle D is TN–MN; γ is TN–GN. Small angles may be exaggerated for visibility, so use the numerical results as the reference.</li>
         </ul>
-        <h3>4. Arti hasil</h3>
+        <h3>4. Understanding the results</h3>
         <ul>
-          <li><b>Deklinasi magnetik (D)</b> — sudut antara utara sebenarnya dan utara magnetik, ditampilkan dalam DMS dan derajat desimal.</li>
-          <li><b>Konvergensi grid (γ)</b> — sudut antara utara sebenarnya dan utara grid, dalam DMS dan derajat desimal.</li>
-          <li><b>Inklinasi magnetik (I)</b> — kemiringan medan magnet terhadap bidang horizontal.</li>
-          <li><b>H</b> — intensitas horizontal; <b>X</b> — komponen utara; <b>Y</b> — komponen timur; <b>Z</b> — komponen vertikal ke bawah; <b>F</b> — intensitas total. Satuan intensitas adalah nanotesla (nT).</li>
-          <li><b>dD, dI, dH, dX, dY, dZ, dF</b> — perkiraan perubahan tahunan model, ditampilkan sebagai menit busur/tahun untuk sudut dan nT/tahun untuk intensitas.</li>
+          <li><b>Magnetic declination (D)</b> — the angle between true north and magnetic north, displayed in DMS and decimal degrees.</li>
+          <li><b>Grid convergence (γ)</b> — the angle between true north and grid north, displayed in DMS and decimal degrees.</li>
+          <li><b>Magnetic inclination (I)</b> — the angle of the magnetic field relative to the horizontal plane.</li>
+          <li><b>H</b> — horizontal intensity; <b>X</b> — north component; <b>Y</b> — east component; <b>Z</b> — vertically downward component; <b>F</b> — total intensity. Intensity is measured in nanotesla (nT).</li>
+          <li><b>dD, dI, dH, dX, dY, dZ, dF</b> — estimated annual changes from the model, expressed in arcminutes per year for angles and nT per year for intensity.</li>
         </ul>
-        <h3>5. Hasil yang diharapkan dan pemeriksaan</h3>
-        <p>Setelah klik <b>Hitung medan magnet dan konvergensi grid</b>, panel hasil menampilkan lokasi/model, D, γ, I, komponen medan, dan perubahan tahunan; ilustrasi memperbarui arah UM dan UG. Hasil bergantung pada tanggal, koordinat, elevasi, file model, dan CRS. Untuk memeriksa hasil, pastikan tanggal berada dalam rentang model, elevasi benar-benar tinggi ellipsoidal, dan CRS target sesuai kebutuhan. Nilai dapat berbeda dari aplikasi lain jika model, epoch, tinggi, CRS, atau konvensi tanda berbeda.</p>
-        <p><b>Catatan:</b> tombol <i>Cek update</i> hanya membuka situs resmi NOAA/NCEI. Periksa lisensi, versi, dan rentang tanggal file sebelum mengganti model.</p>
+        <h3>5. Expected results and validation</h3>
+        <p>After clicking <b>Calculate Magnetic Field and Grid Convergence</b>, the results panel displays the location and model, D, γ, I, field components, and annual changes; the illustration updates the MN and GN directions. Results depend on the date, coordinates, height, model file, and CRS. To validate the results, ensure the date falls within the model's range, the height is ellipsoidal, and the target CRS is appropriate. Results may differ from other applications if the model, epoch, height, CRS, or sign convention differs.</p>
+        <p><b>Note:</b> the <i>Check for updates</i> button only opens the official NOAA/NCEI website. Check the file's licence, version, and date range before changing the model.</p>
         '''
         # Use a resizable dialog with a scrollable HTML viewer. QMessageBox.about()
         # is not suitable for long manuals because it may become excessively tall.
         dlg = QDialog(self)
-        dlg.setWindowTitle('Panduan — Deklinasi Magnetik & Konvergensi Grid')
+        dlg.setWindowTitle('Guide — Magnetic Declination & Grid Convergence')
         dlg.resize(1080, 820)
         dlg.setMinimumSize(760, 560)
         layout = QVBoxLayout(dlg)
@@ -404,7 +404,7 @@ class IGRFDialog(QDialog):
         layout.addWidget(viewer, 1)
         button_row = QHBoxLayout()
         button_row.addStretch(1)
-        close_button = QPushButton('Tutup', dlg)
+        close_button = QPushButton('Close', dlg)
         close_button.clicked.connect(dlg.accept)
         close_button.setDefault(True)
         button_row.addWidget(close_button)
@@ -418,30 +418,30 @@ class IGRFDialog(QDialog):
         lat = dms_to_decimal(self.lat_deg.currentData(), self.lat_min.currentData(), self._seconds_value(self.lat_sec), self.lat_hemi.currentText())
         lon = dms_to_decimal(self.lon_deg.currentData(), self.lon_min.currentData(), self._seconds_value(self.lon_sec), self.lon_hemi.currentText())
         if self.lat_deg.currentData() == 90 and (self.lat_min.currentData() != 0 or self._seconds_value(self.lat_sec) != 0):
-            raise ValueError('Jika lintang 90°, menit dan detik harus nol.')
+            raise ValueError('At latitude 90°, minutes and seconds must be zero.')
         if self.lon_deg.currentData() == 180 and (self.lon_min.currentData() != 0 or self._seconds_value(self.lon_sec) != 0):
-            raise ValueError('Jika bujur 180°, menit dan detik harus nol.')
+            raise ValueError('At longitude 180°, minutes and seconds must be zero.')
         return lat, lon
 
     @staticmethod
     def _automatic_utm(lat, lon):
         if lat < -80 or lat > 84:
-            raise ValueError('Koordinat di luar cakupan UTM standar; pilih CRS lain.')
+            raise ValueError('Coordinates are outside the standard UTM latitude range; choose another CRS.')
         zone = min(60, max(1, int((lon + 180) // 6) + 1))
         epsg = (32600 if lat >= 0 else 32700) + zone
         crs = QgsCoordinateReferenceSystem('EPSG:{}'.format(epsg))
         if not crs.isValid():
-            raise ValueError('CRS UTM otomatis tidak valid.')
+            raise ValueError('The automatically selected UTM CRS is invalid.')
         return crs
 
     def _update_crs_label(self, *args):
         try:
             lat, lon = self._input_lat_lon()
             crs = self.target_crs if self.target_crs is not None else self._automatic_utm(lat, lon)
-            suffix = 'dipilih pengguna' if self.target_crs is not None else 'otomatis dari koordinat'
-            self.crs_label.setText('{} — {} ({})'.format(crs.authid() or 'CRS khusus', crs.description(), suffix))
+            suffix = 'user-selected' if self.target_crs is not None else 'automatically from coordinates'
+            self.crs_label.setText('{} — {} ({})'.format(crs.authid() or 'Custom CRS', crs.description(), suffix))
         except Exception as exc:
-            self.crs_label.setText('UTM otomatis: {}'.format(exc))
+            self.crs_label.setText('Automatic UTM: {}'.format(exc))
 
     def choose_crs(self):
         dialog = QgsProjectionSelectionDialog(self)
@@ -457,7 +457,7 @@ class IGRFDialog(QDialog):
             selected = dialog.crs()
             if selected.isValid():
                 self.target_crs = selected
-                self.choose_crs_button.setText('UTM otomatis')
+                self.choose_crs_button.setText('Automatic UTM')
                 try: self.choose_crs_button.clicked.disconnect()
                 except TypeError: pass
                 self.choose_crs_button.clicked.connect(self.use_automatic_utm)
@@ -465,14 +465,14 @@ class IGRFDialog(QDialog):
 
     def use_automatic_utm(self):
         self.target_crs = None
-        self.choose_crs_button.setText('Pilih CRS lain…')
+        self.choose_crs_button.setText('Choose another CRS…')
         try: self.choose_crs_button.clicked.disconnect()
         except TypeError: pass
         self.choose_crs_button.clicked.connect(self.choose_crs)
         self._update_crs_label()
 
     def choose_model(self):
-        path, _ = QFileDialog.getOpenFileName(self, 'Pilih file koefisien geomagnetik', '', 'File model IGRF/WMM (*.COF *.cof);;Semua file (*.*)')
+        path, _ = QFileDialog.getOpenFileName(self, 'Select a geomagnetic coefficient file', '', 'IGRF/WMM model files (*.COF *.cof);;All files (*.*)')
         if not path:
             return
         try:
@@ -484,7 +484,7 @@ class IGRFDialog(QDialog):
             self.output.clear()
             self.compass.set_angles(0.0, 0.0)
         except Exception as e:
-            QMessageBox.critical(self, 'File model tidak valid', str(e))
+            QMessageBox.critical(self, 'Invalid model file', str(e))
 
     def _apply_model_info(self, info):
         start = QDate(info['start_year'], 1, 1)
@@ -494,14 +494,14 @@ class IGRFDialog(QDialog):
         if self.date.date() < start: self.date.setDate(start)
         elif self.date.date() > end: self.date.setDate(end)
         self.model_label.setText('Model: %s' % info['name'])
-        self.range_label.setText('Rentang tanggal perhitungan: %s – %s' % (start.toString('yyyy-MM-dd'), end.toString('yyyy-MM-dd')))
+        self.range_label.setText('Calculation date range: %s – %s' % (start.toString('yyyy-MM-dd'), end.toString('yyyy-MM-dd')))
 
     def update_model_info(self):
         try:
             self._apply_model_info(model_info(self.cof_path))
         except Exception as e:
-            self.model_label.setText('Model: tidak diketahui')
-            self.range_label.setText('File model belum dapat dibaca: %s' % e)
+            self.model_label.setText('Model: unknown')
+            self.range_label.setText('Unable to read model file: %s' % e)
 
     def run_calculation(self):
         try:
@@ -512,17 +512,17 @@ class IGRFDialog(QDialog):
             self._last_declination = r['D_deg']
             crs = self.target_crs if self.target_crs is not None else self._automatic_utm(lat, lon)
             if not crs.isValid():
-                raise ValueError('CRS tujuan untuk konvergensi grid tidak valid.')
+                raise ValueError('The target CRS for grid convergence is invalid.')
             factors = crs.factors(QgsPoint(lon, lat))
             if not factors.isValid():
-                raise ValueError('Faktor proyeksi tidak valid pada koordinat ini.')
+                raise ValueError('Projection factors are invalid at these coordinates.')
             gamma = factors.meridianConvergence()
             self.compass.set_angles(r['D_deg'], gamma)
             from html import escape
             date_text = d.toString('yyyy-MM-dd')
             lat_dms = angle_dms(lat)
             lon_dms = angle_dms(lon)
-            crs_text = '%s — %s' % (crs.authid() or 'CRS khusus', crs.description())
+            crs_text = '%s — %s' % (crs.authid() or 'Custom CRS', crs.description())
             model_text = model_info(self.cof_path).get('name', os.path.basename(self.cof_path))
             def row(label, value, label_width=190):
                 # Three compact columns: label, aligned colon, value.
@@ -536,38 +536,38 @@ class IGRFDialog(QDialog):
             parts = [
                 '<html><body style="font-family:Arial,sans-serif;font-size:10pt;color:#172033;">',
                 '<table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;table-layout:auto;">',
-                section('Informasi lokasi dan model'),
-                row('Tanggal cetak peta', escape(date_text)),
-                row('Lintang', escape('%s (%+.6f°)' % (lat_dms, lat))),
-                row('Bujur', escape('%s (%+.6f°)' % (lon_dms, lon))),
-                row('Elevasi ellipsoid', '%.3f m' % self.alt.value()),
-                row('CRS grid', escape(crs_text)),
-                row('Model geomagnetic', escape('%s (%s)' % (model_text, os.path.basename(self.cof_path)))),
-                section('Sudut utama'),
-                row('<b>Deklinasi magnetik (D)</b>', '<span style="color:#e53935;">%s &nbsp; (%+.6f°)</span>' % (angle_dms(r['D_deg']), r['D_deg'])),
-                row('Konvergensi grid (γ)', '<span style="color:#1570ef;">%s &nbsp; (%+.6f°)</span>' % (angle_dms(gamma), gamma)),
-                row('Inklinasi magnetik (I)', '%s &nbsp; (%+.6f°)' % (angle_dms(r['I_deg']), r['I_deg'])),
+                section('Location and model information'),
+                row('Map publication date', escape(date_text)),
+                row('Latitude', escape('%s (%+.6f°)' % (lat_dms, lat))),
+                row('Longitude', escape('%s (%+.6f°)' % (lon_dms, lon))),
+                row('Ellipsoidal height', '%.3f m' % self.alt.value()),
+                row('Grid CRS', escape(crs_text)),
+                row('Geomagnetic model', escape('%s (%s)' % (model_text, os.path.basename(self.cof_path)))),
+                section('Key angles'),
+                row('<b>Magnetic declination (D)</b>', '<span style="color:#e53935;">%s &nbsp; (%+.6f°)</span>' % (angle_dms(r['D_deg']), r['D_deg'])),
+                row('Grid convergence (γ)', '<span style="color:#1570ef;">%s &nbsp; (%+.6f°)</span>' % (angle_dms(gamma), gamma)),
+                row('Magnetic inclination (I)', '%s &nbsp; (%+.6f°)' % (angle_dms(r['I_deg']), r['I_deg'])),
                 '</table><br>',
                 '<table width="100%" cellspacing="0" cellpadding="0"><tr>',
                 '<td valign="top" style="width:50%;padding-right:5px;"><table width="100%" cellspacing="0" cellpadding="3" style="border:1px solid #bfdbfe;border-collapse:collapse;">',
-                '<tr><td colspan="3" style="background:#e5f1ff;font-weight:bold;">Komponen medan magnet (nT)</td></tr>',
+                '<tr><td colspan="3" style="background:#e5f1ff;font-weight:bold;">Magnetic field components (nT)</td></tr>',
                 compact_row('H', '%.1f' % r['H_nT']), compact_row('X', '%.1f' % r['X_nT']),
                 compact_row('Y', '%.1f' % r['Y_nT']), compact_row('Z', '%.1f' % r['Z_nT']), compact_row('F', '%.1f' % r['F_nT']),
                 '</table></td><td valign="top" style="width:50%;padding-left:5px;"><table width="100%" cellspacing="0" cellpadding="3" style="border:1px solid #bfdbfe;border-collapse:collapse;">',
-                '<tr><td colspan="3" style="background:#e5f1ff;font-weight:bold;">Perubahan tahunan</td></tr>',
-                compact_row('dD', '%.2f menit busur/tahun' % r['dD_min']),
-                compact_row('dI', '%.2f menit busur/tahun' % r['dI_min']),
-                compact_row('dH', '%.2f nT/tahun' % r['dH_nT']), compact_row('dX', '%.2f nT/tahun' % r['dX_nT']),
-                compact_row('dY', '%.2f nT/tahun' % r['dY_nT']), compact_row('dZ', '%.2f nT/tahun' % r['dZ_nT']),
-                compact_row('dF', '%.2f nT/tahun' % r['dF_nT']),
+                '<tr><td colspan="3" style="background:#e5f1ff;font-weight:bold;">Annual change</td></tr>',
+                compact_row('dD', '%.2f arcmin/year' % r['dD_min']),
+                compact_row('dI', '%.2f arcmin/year' % r['dI_min']),
+                compact_row('dH', '%.2f nT/year' % r['dH_nT']), compact_row('dX', '%.2f nT/year' % r['dX_nT']),
+                compact_row('dY', '%.2f nT/year' % r['dY_nT']), compact_row('dZ', '%.2f nT/year' % r['dZ_nT']),
+                compact_row('dF', '%.2f nT/year' % r['dF_nT']),
                 '</table></td></tr></table>',
-                '<p style="color:#64748b;font-size:9pt;">Sudut pada ilustrasi dapat diskematisasi agar terbaca; nilai numerik tetap hasil hitung. Elevasi merupakan tinggi di atas ellipsoid WGS84.</p>',
+                '<p style="color:#64748b;font-size:9pt;">Angles in the illustration may be exaggerated for visibility; numerical values are the calculated results. Height is measured above the WGS84 ellipsoid.</p>',
                 '<h2>Author and Collaboration</h2><p>Developed and maintained by <b>Suryanto</b>.</p><p>For questions, bug reports, suggestions, or collaboration opportunities, please contact <a href=&quot;mailto:suryanto.bakos@gmail.com&quot;>suryanto.bakos@gmail.com</a>.</p><p>Contributions from the geospatial community are welcome. If you are interested in testing, improving, or extending this plugin, please get in touch. Feedback is appreciated to help improve its accuracy, usability, and functionality.</p></body></html>'
             ]
             html = ''.join(parts)
             self.output.setHtml(html)
         except Exception as e:
-            QMessageBox.critical(self, 'Perhitungan gagal', str(e))
+            QMessageBox.critical(self, 'Calculation failed', str(e))
 
 
 class IGRFMagneticFieldPlugin:
@@ -578,17 +578,17 @@ class IGRFMagneticFieldPlugin:
 
     def initGui(self):
         icon_path = os.path.join(os.path.dirname(__file__), 'icon.svg')
-        self.action = QAction(QIcon(icon_path), 'Deklinasi Magnetik & Konvergensi Grid', self.iface.mainWindow())
-        self.action.setToolTip('Hitung deklinasi magnetik dan konvergensi grid')
-        self.action.setWhatsThis('Menghitung elemen medan geomagnetik dari file IGRF/WMM dan konvergensi grid pada CRS target.')
+        self.action = QAction(QIcon(icon_path), 'Magnetic Declination & Grid Convergence', self.iface.mainWindow())
+        self.action.setToolTip('Calculate magnetic declination and grid convergence')
+        self.action.setWhatsThis('Calculates geomagnetic field elements from an IGRF/WMM file and grid convergence in the target CRS.')
         self.action.triggered.connect(self.show_dialog)
         self.iface.addToolBarIcon(self.action)
-        self.iface.addPluginToMenu('&Deklinasi Magnetik & Konvergensi Grid', self.action)
+        self.iface.addPluginToMenu('&Magnetic Declination & Grid Convergence', self.action)
 
     def unload(self):
         if self.action:
             self.iface.removeToolBarIcon(self.action)
-            self.iface.removePluginMenu('&Deklinasi Magnetik & Konvergensi Grid', self.action)
+            self.iface.removePluginMenu('&Magnetic Declination & Grid Convergence', self.action)
 
     def show_dialog(self):
         if self.dialog is None:
