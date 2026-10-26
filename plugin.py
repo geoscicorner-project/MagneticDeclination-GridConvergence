@@ -264,9 +264,9 @@ class IGRFDialog(QDialog):
         note = QLabel(
             '<b>Illustration legend</b><br>'
             '<table cellspacing="4" cellpadding="1" width="100%">'
-            '<tr><td width="28"><b>US</b></td><td>True North</td></tr>'
-            '<tr><td><b>UM</b></td><td>Magnetic North</td></tr>'
-            '<tr><td><b>UG</b></td><td>Grid North</td></tr>'
+            '<tr><td width="28"><b>TN</b></td><td>True North</td></tr>'
+            '<tr><td><b>MN</b></td><td>Magnetic North</td></tr>'
+            '<tr><td><b>GN</b></td><td>Grid North</td></tr>'
             '</table><hr>'
             '<span style="color:#e53935"><b>D = Magnetic declination</b></span><br>'
             'Angle from TN to MN.<br>'
