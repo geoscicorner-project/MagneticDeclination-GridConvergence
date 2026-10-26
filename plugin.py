@@ -562,7 +562,7 @@ class IGRFDialog(QDialog):
                 compact_row('dF', '%.2f nT/year' % r['dF_nT']),
                 '</table></td></tr></table>',
                 '<p style="color:#64748b;font-size:9pt;">Angles in the illustration may be exaggerated for visibility; numerical values are the calculated results. Height is measured above the WGS84 ellipsoid.</p>',
-                '<h2>Author and Collaboration</h2><p>Developed and maintained by <b>Suryanto</b>.</p><p>For questions, bug reports, suggestions, or collaboration opportunities, please contact <a href=&quot;mailto:suryanto.bakos@gmail.com&quot;>suryanto.bakos@gmail.com</a>.</p><p>Contributions from the geospatial community are welcome. If you are interested in testing, improving, or extending this plugin, please get in touch. Feedback is appreciated to help improve its accuracy, usability, and functionality.</p></body></html>'
+                '<h2>Author and Collaboration</h2><p>Developed and maintained by <b>geoscicorner-project</b>.</p><p>For questions, bug reports, suggestions, or collaboration opportunities, please contact <a href=&quot;mailto:geoscicorner@gmail.com&quot;>geoscicorner@gmail.com</a>.</p><p>Contributions from the geospatial community are welcome. If you are interested in testing, improving, or extending this plugin, please get in touch. Feedback is appreciated to help improve its accuracy, usability, and functionality.</p></body></html>'
             ]
             html = ''.join(parts)
             self.output.setHtml(html)
