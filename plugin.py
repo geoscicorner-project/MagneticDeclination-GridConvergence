@@ -7,7 +7,8 @@ from qgis.PyQt.QtGui import QAction, QDesktopServices, QPainter, QPen, QBrush, Q
 from qgis.PyQt.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QGridLayout, QFormLayout, QDateEdit,
     QDoubleSpinBox, QSpinBox, QPushButton, QLabel, QMessageBox, QComboBox,
-    QGroupBox, QPlainTextEdit, QTextEdit, QTextBrowser, QFileDialog, QWidget, QFrame, QSizePolicy, QSpinBox, QFormLayout, QHBoxLayout, QLineEdit
+    QGroupBox, QPlainTextEdit, QTextEdit, QTextBrowser, QFileDialog, QWidget,
+    QFrame, QSizePolicy, QLineEdit
 )
 from qgis.core import QgsCoordinateReferenceSystem, QgsPoint
 from qgis.gui import QgsProjectionSelectionDialog
