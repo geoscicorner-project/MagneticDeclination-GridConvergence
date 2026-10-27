@@ -9,52 +9,7 @@ email=geoscicorner@gmail.com
 repository=https://github.com/geoscicorner-project/MagneticDeclination-GridConvergence
 homepage=https://github.com/geoscicorner-project/MagneticDeclination-GridConvergence
 tracker=https://github.com/geoscicorner-project/MagneticDeclination-GridConvergence/issues
-about=
-## User Guide
-
-Follow the sections below to enter parameters and understand the calculation results.
-
-### 1. Input Fields
-
-- **Map date:** Select the calculation date within the supported date range of the selected model file.
-- **Latitude:** Enter degrees, minutes, and seconds, then select N (north) or S (south).
-- **Longitude:** Enter degrees, minutes, and seconds, then select E (east) or W (west).
-- **Ellipsoidal height:** Enter the height in metres above the WGS84 ellipsoid.
-- **CRS for grid convergence:** UTM zone is determined automatically from the input coordinates by default. Select another projected CRS if required.
-- **Model file (.COF):** Select a valid geomagnetic coefficient file for the calculation date. The bundled file is IGRF14.COF.
-- **Check for Updates:** Opens the NOAA/NCEI website. The file is not downloaded or replaced automatically.
-
-### 2. Required Data
-
-- Calculation date
-- WGS84 geodetic coordinates: latitude and longitude
-- Ellipsoidal height in metres
-- A geomagnetic model file valid for the selected date
-- A target CRS for grid convergence, or automatic UTM selection
-
-### 3. Calculation Methods
-
-**Geomagnetic field:** Calculated using spherical harmonic coefficients from the selected IGRF/WMM model for the specified date, coordinates, and height.
-
-**Grid convergence (γ):** Calculated using QGIS CRS/projection functions at the input location. Sign conventions may differ between software applications.
-
-### 4. Understanding the Results
-
-- **Magnetic declination (D):** Angle from True North to Magnetic North.
-- **Grid convergence (γ):** Angle from True North to Grid North.
-- **Magnetic inclination (I):** Magnetic field inclination.
-- **H:** Horizontal field intensity (nT).
-- **X, Y, Z:** North, east, and vertically downward field components (nT).
-- **F:** Total magnetic field intensity (nT).
-- **Annual changes:** Annual changes in magnetic field elements, expressed in arcminutes per year or nT per year as applicable.
-
-### 5. Checking the Results
-
-The results panel displays location and model information, D, I, γ, magnetic field components, and annual changes. The TN/GN/MN illustration may exaggerate small angles for visibility, so use the numerical values as the reference.
-
-If results differ from another application, check the date, coordinates, ellipsoidal height, model file, CRS, and sign conventions.
-
-This guide is also available through the Guide button in the plugin window.
+about=User Guide: Select the calculation date within the supported model date range. Enter latitude and longitude in degrees, minutes, and seconds, with the appropriate hemisphere. Enter ellipsoidal height in metres above the WGS84 ellipsoid. Select a geomagnetic coefficient file valid for the calculation date. Grid convergence uses the selected target CRS, with automatic UTM selection available. The results include magnetic declination, inclination, field intensity components, grid convergence, and annual changes. Check the date, coordinates, height, model file, CRS, and sign conventions when comparing results with other applications. The full guide is available through the Guide button in the plugin window.
 category=Vector
 icon=icon.svg
 experimental=False
