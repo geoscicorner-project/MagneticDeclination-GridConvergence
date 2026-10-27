@@ -148,7 +148,7 @@ def _field(lat, lon, altitude_km, coeff, nmax):
     q[1] = -clat; q[2] = slat
     q[3] = -3.0 * clat * slat
     q[4] = math.sqrt(3.0) * (slat * slat - clat * clat)
-    n = 0; m = 1; l = 1
+    n = 0; m = 1; coeff_idx = 1
     for k in range(1, nmax * (nmax + 3) // 2 + 1):
         if n < m:
             m = 0; n += 1
@@ -169,18 +169,18 @@ def _field(lat, lon, altitude_km, coeff, nmax):
                 ii = k - n; j = k - 2 * n + 1
                 p[k] = (fn + 1.0) * (cc * slat / fn * p[ii] - bb / (fn - 1.0) * p[j])
                 q[k] = cc * (slat * q[ii] - clat / fn * p[ii]) - bb * q[j]
-        a = rr * coeff[l]
+        a = rr * coeff[coeff_idx]
         if m == 0:
-            x += a * q[k]; z -= a * p[k]; l += 1
+            x += a * q[k]; z -= a * p[k]; coeff_idx += 1
         else:
-            b = rr * coeff[l + 1]
+            b = rr * coeff[coeff_idx + 1]
             c = a * cl[m] + b * sl[m]
             x += c * q[k]; z -= c * p[k]
             if clat > 0.0:
                 y += (a * sl[m] - b * cl[m]) * fm * p[k] / ((fn + 1.0) * clat)
             else:
                 y += (a * sl[m] - b * cl[m]) * q[k] * slat
-            l += 2
+            coeff_idx += 2
         m += 1
     old_x = x
     x = x * cd + z * sd
